@@ -11,7 +11,7 @@ spec:
     path: infrastructure/base/webapp
     helm:
       valueFiles:
-        - environments/dev/mywebapp-values.yaml
+        - ../../environments/dev/mywebapp-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: app
