@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "webapp.fullname" . }}-notification
+  labels:
+    {{- include "webapp.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.notification.service.type | default "ClusterIP" }}
+  selector:
+    app.kubernetes.io/name: notification-ms
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+    - port: {{ .Values.notification.service.port | default 3000 }}
+      targetPort: {{ .Values.notification.containerPort | default 3000 }}

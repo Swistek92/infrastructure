@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "webapp.fullname" . }}
+  labels:
+    {{- include "webapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.apiGateway.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "webapp.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "webapp.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: api-gateway
+          image: '{{ .Values.apiGateway.image.repository }}:{{ .Values.apiGateway.image.tag | default "latest" }}'
+          imagePullPolicy: {{ .Values.apiGateway.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: {{ .Values.apiGateway.containerPort | default 3000 }}
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.apiGateway.env.NODE_ENV | default "production" | quote }}
+            - name: KAFKA_BROKER
+              value: {{ .Values.apiGateway.env.KAFKA_BROKER | quote }}
+            - name: PRODUCTS_GRPC_URL
+              value: {{ .Values.apiGateway.env.PRODUCTS_GRPC_URL | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.apiGateway.containerPort | default 3000 }}
+            initialDelaySeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.apiGateway.containerPort | default 3000 }}
+            initialDelaySeconds: 30

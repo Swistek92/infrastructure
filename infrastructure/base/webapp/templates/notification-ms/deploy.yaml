@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "webapp.fullname" . }}-notification
+  labels:
+    {{- include "webapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.notification.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: notification-ms
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: notification-ms
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: notification-ms
+          image: '{{ .Values.notification.image.repository }}:{{ .Values.notification.image.tag | default "latest" }}'
+          imagePullPolicy: {{ .Values.notification.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: {{ .Values.notification.containerPort | default 3000 }}
+          env:
+            - name: KAFKA_BROKER
+              value: {{ .Values.notification.env.KAFKA_BROKER | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.notification.env.NODE_ENV | default "production" | quote }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.notification.containerPort | default 3000 }}
+            initialDelaySeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.notification.containerPort | default 3000 }}
+            initialDelaySeconds: 30

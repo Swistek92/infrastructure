@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "webapp.fullname" . }}-order
+  labels:
+    {{- include "webapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.order.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-ms
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: order-ms
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: order-ms
+          image: '{{ .Values.order.image.repository }}:{{ .Values.order.image.tag | default "latest" }}'
+          imagePullPolicy: {{ .Values.order.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: {{ .Values.order.containerPort | default 3000 }}
+          env:
+            - name: KAFKA_BROKER
+              value: {{ .Values.order.env.KAFKA_BROKER | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.order.env.NODE_ENV | default "production" | quote }}
+          {{- if .Values.order.probes.enabled }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.order.containerPort | default 3000 }}
+            initialDelaySeconds: {{ .Values.order.probes.initialDelaySeconds | default 10 }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.order.containerPort | default 3000 }}
+            initialDelaySeconds: {{ .Values.order.probes.livenessInitialDelaySeconds | default 30 }}
+          {{- end }}

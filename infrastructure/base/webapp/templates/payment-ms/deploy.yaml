@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "webapp.fullname" . }}-payment
+  labels:
+    {{- include "webapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.payment.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: payment-ms
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: payment-ms
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: payment-ms
+          image: '{{ .Values.payment.image.repository }}:{{ .Values.payment.image.tag | default "latest" }}'
+          imagePullPolicy: {{ .Values.payment.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: {{ .Values.payment.containerPort | default 3000 }}
+          env:
+            - name: KAFKA_BROKER
+              value: {{ .Values.payment.env.KAFKA_BROKER | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.payment.env.NODE_ENV | default "production" | quote }}
+          {{- if .Values.payment.probes.enabled }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.payment.containerPort | default 3000 }}
+            initialDelaySeconds: {{ .Values.payment.probes.initialDelaySeconds | default 10 }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.payment.containerPort | default 3000 }}
+            initialDelaySeconds: {{ .Values.payment.probes.livenessInitialDelaySeconds | default 30 }}
+          {{- end }}
