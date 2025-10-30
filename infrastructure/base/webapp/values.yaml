@@ -98,16 +98,13 @@ kafka:
     pullSecrets:
       - dockerhub-cred
 
-  # 1 replika controller+broker (prosto na dev)
   controller:
     replicaCount: 1
     controllerOnly: false
 
-  # bez osobnych broker-only
   broker:
     replicaCount: 0
 
-  # czyste PLAINTEXT w klastrze
   listeners:
     client:
       protocol: PLAINTEXT
@@ -126,6 +123,7 @@ kafka:
 
   persistence:
     enabled: false
+
 
 zookeeper:
   enabled: false
