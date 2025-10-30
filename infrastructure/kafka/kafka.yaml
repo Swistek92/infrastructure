@@ -6,10 +6,6 @@ metadata:
 spec:
   kafka:
     version: 3.7.0
-    replicas: 1
-    kraft:
-      quorum:
-        replicas: 1
     listeners:
       - name: plain
         port: 9092
@@ -21,8 +17,32 @@ spec:
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
-    storage:
-      type: ephemeral
   entityOperator:
     topicOperator: {}
     userOperator: {}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: my-cluster-controllers
+  namespace: kafka
+spec:
+  cluster: my-cluster
+  roles:
+    - controller
+  replicas: 1
+  storage:
+    type: ephemeral
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: my-cluster-brokers
+  namespace: kafka
+spec:
+  cluster: my-cluster
+  roles:
+    - broker
+  replicas: 1
+  storage:
+    type: ephemeral
