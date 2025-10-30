@@ -6,6 +6,9 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
+  destination:
+    namespace: kafka
+    server: https://kubernetes.default.svc
   source:
     repoURL: https://strimzi.io/charts/
     chart: strimzi-kafka-operator
@@ -22,3 +25,10 @@ spec:
           limits:
             memory: 1Gi
             cpu: 500m
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
