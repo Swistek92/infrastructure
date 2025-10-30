@@ -7,14 +7,13 @@ apiGateway:
     pullPolicy: Always
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "dev-kafka-bootstrap.kafka.svc:9092"
-    PRODUCTS_GRPC_URL: "products-ms.app.svc:50051"
+    KAFKA_BROKER: "mywebapp-kafka:9092"             # Bitnami Kafka (KRaft)
+    PRODUCTS_GRPC_URL: "mywebapp-webapp-products:50051"
   service:
     type: ClusterIP
     port: 3000
-# ------------------------------------------------------------------
+
 notification:
-  name: notification-ms
   replicas: 1
   containerPort: 3000
   image:
@@ -22,12 +21,12 @@ notification:
     tag: latest
     pullPolicy: IfNotPresent
   env:
-    KAFKA_BROKER: "dev-kafka-bootstrap.kafka:9092"
+    KAFKA_BROKER: "mywebapp-kafka:9092"
     NODE_ENV: "production"
   service:
     type: ClusterIP
     port: 3000
-# ------------------------------------------------------------------
+
 order:
   replicas: 1
   containerPort: 3000
@@ -36,7 +35,7 @@ order:
     tag: latest
     pullPolicy: IfNotPresent
   env:
-    KAFKA_BROKER: "dev-kafka-bootstrap.kafka:9092"
+    KAFKA_BROKER: "mywebapp-kafka:9092"
     NODE_ENV: "production"
   service:
     type: ClusterIP
@@ -45,7 +44,7 @@ order:
     enabled: true
     initialDelaySeconds: 10
     livenessInitialDelaySeconds: 30
-# ------------------------------------------------------------------
+
 payment:
   replicas: 1
   containerPort: 3000
@@ -54,7 +53,7 @@ payment:
     tag: latest
     pullPolicy: IfNotPresent
   env:
-    KAFKA_BROKER: "dev-kafka-bootstrap.kafka:9092"
+    KAFKA_BROKER: "mywebapp-kafka:9092"
     NODE_ENV: "production"
   service:
     type: ClusterIP
@@ -63,7 +62,7 @@ payment:
     enabled: true
     initialDelaySeconds: 10
     livenessInitialDelaySeconds: 30
-# ------------------------------------------------------------------
+
 products:
   replicas: 1
   containerPort: 50051
@@ -83,4 +82,30 @@ products:
     liveness:
       initialDelaySeconds: 15
       periodSeconds: 20
-# ----------------------------------------------------------------
+
+# ===== Kafka Bitnami jako subchart (KRaft, bez Zookeepera) =====
+kafka:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/kafka
+    tag: 3.6.1-debian-11-r44         # sprawdzony, dostępny tag
+  kraft:
+    enabled: true
+  controller:
+    replicaCount: 1
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits:   { cpu: 500m, memory: 1Gi }
+  broker:
+    replicaCount: 1
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits:   { cpu: 500m, memory: 1Gi }
+  persistence:
+    enabled: false                    # lokalnie bez PVC (szybkie uruchomienie)
+  service:
+    type: ClusterIP
+
+zookeeper:
+  enabled: false                      # KRaft nie potrzebuje ZK

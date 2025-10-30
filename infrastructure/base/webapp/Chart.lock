@@ -1,0 +1,9 @@
+dependencies:
+- name: kafka
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 26.11.4
+- name: zookeeper
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 12.12.1
+digest: sha256:86a4c6a6acc0df35cf2742db86be62e2719bd310ae75f1fbaa764a40977add05
+generated: "2025-10-30T10:21:38.676672028+01:00"
