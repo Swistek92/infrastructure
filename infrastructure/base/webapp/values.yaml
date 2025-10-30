@@ -1,23 +1,16 @@
-# ZMIEN TO jeśli Twój Kafka CR/namespace mają inne nazwy
-kafka:
-  bootstrapServers: "my-cluster-kafka-bootstrap.kafka:9092"
-
+# values.yaml
 global:
   imagePullSecrets:
     - dockerhub-cred
 
-# ===== Wspólne ENV dla wszystkich podów (prod+NestJS microservices) =====
-commonEnv:
-  NODE_ENV: "production"
-  # dla klienta używającego jednej wartości:
-  KAFKA_BROKER: "{{ .Values.kafka.bootstrapServers }}"
-  # dla NestJS ServerKafka / kafkajs, które oczekują listy brokerów:
-  KAFKA_BROKERS: "{{ .Values.kafka.bootstrapServers }}"
-  # jeśli gdzieś kod rozbija host/port osobno – zostawiamy też to:
-  KAFKA_HOST: "{{ (splitList \":\" .Values.kafka.bootstrapServers)._0 }}"
-  KAFKA_PORT: "{{ (splitList \":\" .Values.kafka.bootstrapServers)._1 | default \"9092\" }}"
-  # wyciszenie ostrzeżenia kafkajs
-  KAFKAJS_NO_PARTITIONER_WARNING: "1"
+# ---- wspólne: adres brokera Strimzi ----
+kafka:
+  # jeśli Strimzi jest w ns "kafka" i klaster nazywa się "my-cluster":
+  bootstrap: "my-cluster-kafka-bootstrap.kafka:9092"
+  # FQDN też zadziała: "my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+  # Dla TLS zwykle użyj 9093 i dodatkowych sekretnych zmiennych/Cert:
+  # bootstrap: "my-cluster-kafka-bootstrap.kafka:9093"
+  # tls: true
 
 apiGateway:
   replicas: 1
@@ -27,7 +20,8 @@ apiGateway:
     tag: latest
     pullPolicy: Always
   env:
-    # specyficzne tylko dla tej usługi
+    NODE_ENV: "production"
+    KAFKA_BROKER: "my-cluster-kafka-bootstrap.kafka:9092"
     PRODUCTS_GRPC_URL: "mywebapp-webapp-products:50051"
   service:
     type: ClusterIP
@@ -40,6 +34,9 @@ notification:
     repository: swistek/notification-microservice
     tag: latest
     pullPolicy: IfNotPresent
+  env:
+    NODE_ENV: "production"
+    KAFKA_BROKER: "my-cluster-kafka-bootstrap.kafka:9092"
   service:
     type: ClusterIP
     port: 3000
@@ -51,6 +48,9 @@ order:
     repository: swistek/order-microservice
     tag: latest
     pullPolicy: IfNotPresent
+  env:
+    NODE_ENV: "production"
+    KAFKA_BROKER: "my-cluster-kafka-bootstrap.kafka:9092"
   service:
     type: ClusterIP
     port: 3000
@@ -66,6 +66,9 @@ payment:
     repository: swistek/payment-microservice
     tag: latest
     pullPolicy: IfNotPresent
+  env:
+    NODE_ENV: "production"
+    KAFKA_BROKER: "my-cluster-kafka-bootstrap.kafka:9092"
   service:
     type: ClusterIP
     port: 3000
@@ -81,6 +84,8 @@ products:
     repository: swistek/products-microservice
     tag: latest
     pullPolicy: Always
+  env:
+    NODE_ENV: "production"
   service:
     type: ClusterIP
     port: 50051
@@ -92,8 +97,9 @@ products:
       initialDelaySeconds: 15
       periodSeconds: 20
 
-# W tym charcie Kafka/ZK wyłączone – używasz Strimzi
-kafkaChart:
+# Kafka z chartu wyłączona – używasz Strimzi
+kafkaBuiltin:
   enabled: false
+
 zookeeper:
   enabled: false
