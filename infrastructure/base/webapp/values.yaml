@@ -1,6 +1,22 @@
+# values.yaml
 global:
   imagePullSecrets:
     - dockerhub-cred
+
+# ---- wspólne: adres brokera Strimzi ----
+# Dla połączeń PLAINTEXT:
+kafka:
+  bootstrap: "my-cluster-kafka-bootstrap.kafka.svc:9092"
+# Jeśli używasz TLS, wtedy zwykle port 9093 i dodatkowe zmienne środowiskowe/certyfikaty:
+# kafka:
+#   bootstrap: "my-cluster-kafka-bootstrap.kafka.svc:9093"
+#   tls: true
+#   sasl:
+#     enabled: false  # ustaw true, jeśli używasz SASL
+#     mechanism: "SCRAM-SHA-512"
+#     username: ""
+#     passwordSecretName: ""     # nazwa Secretu z hasłem
+#     passwordSecretKey: ""      # klucz w Secrecie
 
 apiGateway:
   replicas: 1
@@ -11,7 +27,14 @@ apiGateway:
     pullPolicy: Always
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "mywebapp-kafka:9092"
+    KAFKA_BROKER: "{{ .Values.kafka.bootstrap }}"
+    # jeśli TLS/SASL, dodaj tu zmienne oczekiwane przez aplikację, np.:
+    # KAFKA_TLS: "{{ .Values.kafka.tls | default false }}"
+    # KAFKA_SASL_ENABLED: "{{ .Values.kafka.sasl.enabled | default false }}"
+    # KAFKA_SASL_MECHANISM: "{{ .Values.kafka.sasl.mechanism | default \"SCRAM-SHA-512\" }}"
+    # KAFKA_SASL_USERNAME: "{{ .Values.kafka.sasl.username }}"
+    # KAFKA_SASL_PASSWORD_SECRET_NAME: "{{ .Values.kafka.sasl.passwordSecretName }}"
+    # KAFKA_SASL_PASSWORD_SECRET_KEY: "{{ .Values.kafka.sasl.passwordSecretKey }}"
     PRODUCTS_GRPC_URL: "mywebapp-webapp-products:50051"
   service:
     type: ClusterIP
@@ -26,7 +49,7 @@ notification:
     pullPolicy: IfNotPresent
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "mywebapp-kafka:9092"
+    KAFKA_BROKER: "{{ .Values.kafka.bootstrap }}"
   service:
     type: ClusterIP
     port: 3000
@@ -40,7 +63,7 @@ order:
     pullPolicy: IfNotPresent
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "mywebapp-kafka:9092"
+    KAFKA_BROKER: "{{ .Values.kafka.bootstrap }}"
   service:
     type: ClusterIP
     port: 3000
@@ -58,7 +81,7 @@ payment:
     pullPolicy: IfNotPresent
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "mywebapp-kafka:9092"
+    KAFKA_BROKER: "{{ .Values.kafka.bootstrap }}"
   service:
     type: ClusterIP
     port: 3000
@@ -87,8 +110,8 @@ products:
       initialDelaySeconds: 15
       periodSeconds: 20
 
-# ===== Kafka z obrazu apache/kafka będzie wdrożona osobnym manifestem =====
-kafka:
+# Te sekcje pozostają wyłączone – Kafka jest dostarczana przez Strimzi
+kafkaBuiltin:
   enabled: false
 
 zookeeper:
