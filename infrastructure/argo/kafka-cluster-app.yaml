@@ -4,11 +4,11 @@ metadata:
   name: kafka-cluster
   namespace: argocd
 spec:
-  project: default
   source:
     repoURL: https://github.com/Swistek92/infrastructure
     targetRevision: HEAD
     path: infrastructure/kafkakubectl get namespaces | grep kafka
+
 
   destination:
     server: https://kubernetes.default.svc
