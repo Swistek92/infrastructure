@@ -1,3 +1,6 @@
+global:
+  imagePullSecrets:
+    - name: dockerhub-cred
 kafka:
   enabled: true
   image:
