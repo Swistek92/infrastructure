@@ -1,22 +1,23 @@
-# values.yaml
+# ZMIEN TO jeśli Twój Kafka CR/namespace mają inne nazwy
+kafka:
+  bootstrapServers: "my-cluster-kafka-bootstrap.kafka:9092"
+
 global:
   imagePullSecrets:
     - dockerhub-cred
 
-# ---- wspólne: adres brokera Strimzi ----
-# Dla połączeń PLAINTEXT:
-kafka:
-  bootstrap: "my-cluster-kafka-bootstrap.kafka.svc:9092"
-# Jeśli używasz TLS, wtedy zwykle port 9093 i dodatkowe zmienne środowiskowe/certyfikaty:
-# kafka:
-#   bootstrap: "my-cluster-kafka-bootstrap.kafka.svc:9093"
-#   tls: true
-#   sasl:
-#     enabled: false  # ustaw true, jeśli używasz SASL
-#     mechanism: "SCRAM-SHA-512"
-#     username: ""
-#     passwordSecretName: ""     # nazwa Secretu z hasłem
-#     passwordSecretKey: ""      # klucz w Secrecie
+# ===== Wspólne ENV dla wszystkich podów (prod+NestJS microservices) =====
+commonEnv:
+  NODE_ENV: "production"
+  # dla klienta używającego jednej wartości:
+  KAFKA_BROKER: "{{ .Values.kafka.bootstrapServers }}"
+  # dla NestJS ServerKafka / kafkajs, które oczekują listy brokerów:
+  KAFKA_BROKERS: "{{ .Values.kafka.bootstrapServers }}"
+  # jeśli gdzieś kod rozbija host/port osobno – zostawiamy też to:
+  KAFKA_HOST: "{{ (splitList \":\" .Values.kafka.bootstrapServers)._0 }}"
+  KAFKA_PORT: "{{ (splitList \":\" .Values.kafka.bootstrapServers)._1 | default \"9092\" }}"
+  # wyciszenie ostrzeżenia kafkajs
+  KAFKAJS_NO_PARTITIONER_WARNING: "1"
 
 apiGateway:
   replicas: 1
@@ -26,15 +27,7 @@ apiGateway:
     tag: latest
     pullPolicy: Always
   env:
-    NODE_ENV: "production"
-    KAFKA_BROKER: "{{ .Values.kafka.bootstrap }}"
-    # jeśli TLS/SASL, dodaj tu zmienne oczekiwane przez aplikację, np.:
-    # KAFKA_TLS: "{{ .Values.kafka.tls | default false }}"
-    # KAFKA_SASL_ENABLED: "{{ .Values.kafka.sasl.enabled | default false }}"
-    # KAFKA_SASL_MECHANISM: "{{ .Values.kafka.sasl.mechanism | default \"SCRAM-SHA-512\" }}"
-    # KAFKA_SASL_USERNAME: "{{ .Values.kafka.sasl.username }}"
-    # KAFKA_SASL_PASSWORD_SECRET_NAME: "{{ .Values.kafka.sasl.passwordSecretName }}"
-    # KAFKA_SASL_PASSWORD_SECRET_KEY: "{{ .Values.kafka.sasl.passwordSecretKey }}"
+    # specyficzne tylko dla tej usługi
     PRODUCTS_GRPC_URL: "mywebapp-webapp-products:50051"
   service:
     type: ClusterIP
@@ -47,9 +40,6 @@ notification:
     repository: swistek/notification-microservice
     tag: latest
     pullPolicy: IfNotPresent
-  env:
-    NODE_ENV: "production"
-    KAFKA_BROKER: "{{ .Values.kafka.bootstrap }}"
   service:
     type: ClusterIP
     port: 3000
@@ -61,9 +51,6 @@ order:
     repository: swistek/order-microservice
     tag: latest
     pullPolicy: IfNotPresent
-  env:
-    NODE_ENV: "production"
-    KAFKA_BROKER: "{{ .Values.kafka.bootstrap }}"
   service:
     type: ClusterIP
     port: 3000
@@ -79,9 +66,6 @@ payment:
     repository: swistek/payment-microservice
     tag: latest
     pullPolicy: IfNotPresent
-  env:
-    NODE_ENV: "production"
-    KAFKA_BROKER: "{{ .Values.kafka.bootstrap }}"
   service:
     type: ClusterIP
     port: 3000
@@ -97,8 +81,6 @@ products:
     repository: swistek/products-microservice
     tag: latest
     pullPolicy: Always
-  env:
-    NODE_ENV: "production"
   service:
     type: ClusterIP
     port: 50051
@@ -110,9 +92,8 @@ products:
       initialDelaySeconds: 15
       periodSeconds: 20
 
-# Te sekcje pozostają wyłączone – Kafka jest dostarczana przez Strimzi
-kafkaBuiltin:
+# W tym charcie Kafka/ZK wyłączone – używasz Strimzi
+kafkaChart:
   enabled: false
-
 zookeeper:
   enabled: false
