@@ -6,9 +6,6 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
-  destination:
-    namespace: kafka
-    server: https://kubernetes.default.svc
   source:
     repoURL: https://strimzi.io/charts/
     chart: strimzi-kafka-operator
@@ -18,11 +15,10 @@ spec:
         watchAnyNamespace: false
         watchNamespaces:
           - kafka
-        # leaderElection domyślnie włączone; RBAC generuje się z poprawnym SA ns
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - SkipDryRunOnMissingResource=true
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 500m
