@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: kafka
+
+resources:
+  # weź gotowy release manifest (najprościej) lub katalog install/cluster-operator
+  - https://github.com/strimzi/strimzi-kafka-operator/releases/download/0.41.0/strimzi-cluster-operator-0.41.0.yaml
+
+patches:
+  - path: patches/rolebinding-sa-namespace.yaml
+  - path: patches/clusterrolebinding-sa-namespace.yaml
