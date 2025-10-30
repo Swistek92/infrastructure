@@ -1,6 +1,3 @@
-global:
-  imagePullSecrets:
-    - dockerhub-cred   # lista STRINGÓW, nie obiektów {name: ...}
 
 apiGateway:
   replicas: 1
@@ -91,38 +88,20 @@ products:
 kafka:
   enabled: true
   image:
-    registry: docker.io
+    registry: ghcr.io
     repository: bitnami/kafka
-    # TIP: jeśli miałeś ErrImagePull z 3.6.1-debian-11-r44, usuń tag i pozwól chartowi użyć domyślnego
-    # lub ustaw świeższy stabilny tag. Na start po prostu zakomentuj:
+    # najlepiej zacząć bez wymuszonego tagu, żeby użyć domyślnego z chartu
     # tag: 3.6.1-debian-11-r44
     pullPolicy: IfNotPresent
-    pullSecrets:
-      - dockerhub-cred    # lista STRINGÓW
+    pullSecrets: []      # ważne: puste, żeby nie próbował używać dockerhub-cred
   kraft:
     enabled: true
   controller:
     replicaCount: 1
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 500m
-        memory: 1Gi
   broker:
     replicaCount: 1
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 500m
-        memory: 1Gi
   persistence:
     enabled: false
-  service:
-    type: ClusterIP
 
 zookeeper:
   enabled: false
