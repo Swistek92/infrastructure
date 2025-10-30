@@ -1,6 +1,6 @@
 global:
   imagePullSecrets:
-    - name: dockerhub-cred
+    - dockerhub-cred   # lista STRINGÓW, nie obiektów {name: ...}
 
 apiGateway:
   replicas: 1
@@ -87,15 +87,18 @@ products:
       initialDelaySeconds: 15
       periodSeconds: 20
 
-# ===== Kafka Bitnami jako subchart (KRaft, bez Zookeepera) =====
+# ===== Bitnami Kafka (KRaft, bez ZK) =====
 kafka:
   enabled: true
   image:
     registry: docker.io
     repository: bitnami/kafka
-    tag: 3.6.1-debian-11-r44     # poprawny, istniejący tag
+    # TIP: jeśli miałeś ErrImagePull z 3.6.1-debian-11-r44, usuń tag i pozwól chartowi użyć domyślnego
+    # lub ustaw świeższy stabilny tag. Na start po prostu zakomentuj:
+    # tag: 3.6.1-debian-11-r44
+    pullPolicy: IfNotPresent
     pullSecrets:
-      - dockerhub-cred           # ważne: podaj secret również tu!
+      - dockerhub-cred    # lista STRINGÓW
   kraft:
     enabled: true
   controller:
