@@ -1,28 +1,46 @@
 global:
   imagePullSecrets:
     - name: dockerhub-cred
+
 kafka:
   enabled: true
   image:
     registry: docker.io
     repository: bitnami/kafka
-    tag: 3.6.1-debian-11-r44       # <- istnieje
-  kraft:
-    enabled: true
+    tag: 4.0.0-debian-12-r10        # ✅ nowy, dostępny obraz
+    pullPolicy: IfNotPresent
+    pullSecrets:
+      - dockerhub-cred
+
+  # w nowych chartach KRaft jest wbudowany, nie używaj starego klucza `kraft.enabled`
   controller:
     replicaCount: 1
+    controllerOnly: false
     resources:
       requests: { cpu: 200m, memory: 512Mi }
       limits:   { cpu: 500m, memory: 1Gi }
+
   broker:
-    replicaCount: 1
-    resources:
-      requests: { cpu: 200m, memory: 512Mi }
-      limits:   { cpu: 500m, memory: 1Gi }
-  persistence:
-    enabled: false
+    replicaCount: 0
+
+  listeners:
+    client:
+      protocol: PLAINTEXT
+      containerPort: 9092
+    controller:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT
+
   service:
     type: ClusterIP
+    ports:
+      client: 9092
+      controller: 9093
+      interbroker: 9094
+
+  persistence:
+    enabled: false
 
 zookeeper:
-  enabled: false   # KRaft nie potrzebuje ZK
+  enabled: false
