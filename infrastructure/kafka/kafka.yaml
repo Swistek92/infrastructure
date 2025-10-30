@@ -1,7 +1,3 @@
-# --------------------------------------------------------
-# Kafka cluster definition (KRaft mode - Kafka 4.1.0)
-# Works with Strimzi 0.41.0+
-# --------------------------------------------------------
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
@@ -10,21 +6,28 @@ metadata:
 spec:
   kafka:
     version: 3.9.0
+    replicas: 1
     listeners:
       - name: plain
         port: 9092
         type: internal
         tls: false
     config:
-      # minimalne ustawienia dla single-node
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
+    storage:
+      type: ephemeral
+  zookeeper:
+    replicas: 1
+    storage:
+      type: ephemeral
   entityOperator:
     topicOperator: {}
     userOperator: {}
+
 ---
 # --------------------------------------------------------
 # Combined NodePool (controller + broker in one pod)
