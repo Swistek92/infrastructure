@@ -1,3 +1,6 @@
+global:
+  imagePullSecrets:
+    - name: dockerhub-cred
 apiGateway:
   replicas: 1
   containerPort: 3000
