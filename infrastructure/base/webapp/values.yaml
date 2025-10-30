@@ -90,10 +90,9 @@ kafka:
   image:
     registry: ghcr.io
     repository: bitnami/kafka
-    # najlepiej zacząć bez wymuszonego tagu, żeby użyć domyślnego z chartu
-    # tag: 3.6.1-debian-11-r44
     pullPolicy: IfNotPresent
-    pullSecrets: []      # ważne: puste, żeby nie próbował używać dockerhub-cred
+    pullSecrets:
+     - dockerhub-cred    
   kraft:
     enabled: true
   controller:
