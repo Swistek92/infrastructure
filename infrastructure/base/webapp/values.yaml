@@ -99,33 +99,5 @@ kafka:
     pullSecrets:
       - dockerhub-cred
 
-  # w 32.x KRaft jest domyślny, ustaw 1 kontroler jako controller+broker
-  controller:
-    replicaCount: 1
-    controllerOnly: false
-
-  broker:
-    replicaCount: 0
-
-  # prosta konfiguracja bez TLS/SASL na start
-  listeners:
-    client:
-      protocol: PLAINTEXT
-      containerPort: 9092
-    controller:
-      protocol: PLAINTEXT
-    interbroker:
-      protocol: PLAINTEXT
-
-  service:
-    type: ClusterIP
-    ports:
-      client: 9092
-      controller: 9093
-      interbroker: 9094
-
-  persistence:
-    enabled: false
-    
 zookeeper:
   enabled: false
