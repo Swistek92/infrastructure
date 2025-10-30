@@ -9,9 +9,8 @@ metadata:
 spec:
   kafka:
     version: 3.7.0
-    metadataMode: KRaft
+    # Uwaga: KRaft włączony adnotacją powyżej; nie używamy metadataMode
     config:
-      # Single-node dev: wszystkie RF = 1
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
       transaction.state.log.min.isr: 1
@@ -22,6 +21,13 @@ spec:
         port: 9092
         type: internal
         tls: false
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "2Gi"
+      limits:
+        cpu: "1"
+        memory: "5Gi"
   entityOperator:
     topicOperator: {}
     userOperator: {}
@@ -36,22 +42,11 @@ metadata:
     strimzi.io/cluster: dev
 spec:
   replicas: 1
-  roles:
-    - controller
-    - broker
+  roles: [controller, broker]
   storage:
     type: jbod
     volumes:
       - id: 0
         type: persistent-claim
         size: 5Gi
-        class: local-path   # <- podmień na swój StorageClass jeśli inny
-  template:
-    pod:
-      resources:
-        requests:
-          cpu: "500m"
-          memory: "1Gi"
-        limits:
-          cpu: "1"
-          memory: "2Gi"
+        class: local-path   # <- jeśli masz inny StorageClass, podmień tutaj
