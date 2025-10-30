@@ -24,10 +24,5 @@ version: 0.1.0
 appVersion: "1.16.0"
 dependencies:
   - name: kafka
+    version: 32.4.3         # (linia z aktualnym 32.x)
     repository: oci://registry-1.docker.io/bitnamicharts
-    version: 26.x.x
-    condition: kafka.enabled
-  - name: zookeeper
-    repository: oci://registry-1.docker.io/bitnamicharts
-    version: 12.x.x
-    condition: zookeeper.enabled
