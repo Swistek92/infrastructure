@@ -1,17 +1,19 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: my-cluster
+  name: dev
   namespace: kafka
 spec:
   kafka:
-    version: 3.7.0
+    # WERSJA wspierana przez Twój operator:
+    version: 4.1.0
     listeners:
       - name: plain
         port: 9092
         type: internal
         tls: false
     config:
+      # minimalne ustawienia dla single-node
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
       transaction.state.log.min.isr: 1
@@ -20,27 +22,3 @@ spec:
   entityOperator:
     topicOperator: {}
     userOperator: {}
----
-apiVersion: kafka.strimzi.io/v1beta2
-kind: KafkaNodePool
-metadata:
-  name: my-cluster-controllers
-  namespace: kafka
-spec:
-  cluster: my-cluster
-  roles: [controller]
-  replicas: 1
-  storage:
-    type: ephemeral
----
-apiVersion: kafka.strimzi.io/v1beta2
-kind: KafkaNodePool
-metadata:
-  name: my-cluster-brokers
-  namespace: kafka
-spec:
-  cluster: my-cluster
-  roles: [broker]
-  replicas: 1
-  storage:
-    type: ephemeral
