@@ -22,11 +22,11 @@ spec:
         tls: false
     resources:
       requests:
-        memory: 1Gi
-        cpu: 500m
-      limits:
-        memory: 2Gi
+        memory: 4Gi
         cpu: 1
+      limits:
+        memory: 8Gi
+        cpu: 2
   entityOperator:
     topicOperator: {}
     userOperator: {}
@@ -41,7 +41,9 @@ metadata:
     strimzi.io/cluster: dev
 spec:
   replicas: 1
-  roles: [controller, broker]
+  roles:
+    - controller
+    - broker
   storage:
     type: jbod
     volumes:
@@ -49,4 +51,13 @@ spec:
         type: persistent-claim
         size: 5Gi
         class: local-path
-        deleteClaim: true    # <--- ważne! usuwa PVC po usunięciu NodePool
+        deleteClaim: true  # usuwa PVC po usunięciu NodePool
+  template:
+    pod:
+      resources:
+        requests:
+          memory: 4Gi
+          cpu: 1
+        limits:
+          memory: 8Gi
+          cpu: 2
