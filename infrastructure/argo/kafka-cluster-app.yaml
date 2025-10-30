@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Swistek92/infrastructure
     targetRevision: HEAD
-    path: agro/kafka
+    path: AGRO/kafka
   destination:
     server: https://kubernetes.default.svc
     namespace: kafka
