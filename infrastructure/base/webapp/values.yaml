@@ -2,24 +2,20 @@
 global:
   imagePullSecrets:
     - dockerhub-cred
+
 helm:
   values: |
     resources:
       requests:
         memory: 512Mi
-        cpu: 200m
+        cpu: 500m
       limits:
         memory: 6Gi
-        cpu: 500m
+        cpu: "2"
 
 # ---- wspólne: adres brokera Strimzi ----
 kafka:
-  # jeśli Strimzi jest w ns "kafka" i klaster nazywa się "my-cluster":
-  bootstrap: "my-cluster-kafka-bootstrap.kafka:9092"
-  # FQDN też zadziała: "my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
-  # Dla TLS zwykle użyj 9093 i dodatkowych sekretnych zmiennych/Cert:
-  # bootstrap: "my-cluster-kafka-bootstrap.kafka:9093"
-  # tls: true
+  bootstrap: "dev-kafka-bootstrap.kafka:9092"   # <— poprawione
 
 apiGateway:
   replicas: 1
@@ -30,7 +26,7 @@ apiGateway:
     pullPolicy: Always
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "my-cluster-kafka-bootstrap.kafka:9092"
+    KAFKA_BROKER: "dev-kafka-bootstrap.kafka:9092"   # <— poprawione
     PRODUCTS_GRPC_URL: "mywebapp-webapp-products:50051"
   service:
     type: ClusterIP
@@ -45,7 +41,7 @@ notification:
     pullPolicy: IfNotPresent
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "my-cluster-kafka-bootstrap.kafka:9092"
+    KAFKA_BROKER: "dev-kafka-bootstrap.kafka:9092"   # <— poprawione
   service:
     type: ClusterIP
     port: 3000
@@ -59,7 +55,7 @@ order:
     pullPolicy: IfNotPresent
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "my-cluster-kafka-bootstrap.kafka:9092"
+    KAFKA_BROKER: "dev-kafka-bootstrap.kafka:9092"   # <— poprawione
   service:
     type: ClusterIP
     port: 3000
@@ -77,7 +73,7 @@ payment:
     pullPolicy: IfNotPresent
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "my-cluster-kafka-bootstrap.kafka:9092"
+    KAFKA_BROKER: "dev-kafka-bootstrap.kafka:9092"   # <— poprawione
   service:
     type: ClusterIP
     port: 3000
