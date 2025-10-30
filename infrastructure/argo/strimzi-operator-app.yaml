@@ -20,11 +20,11 @@ spec:
           - kafka
         resources:
           requests:
-            memory: 1Gi
-            cpu: 300m
-          limits:
-            memory: 6Gi
+            memory: 4Gi
             cpu: 1
+          limits:
+            memory: 20Gi
+            cpu: 4
   syncPolicy:
     automated:
       prune: true
