@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kafka
+  source:
+    repoURL: oci://quay.io/strimzi-helm     # REPO OCI
+    chart: strimzi-kafka-operator            # NAZWA CHARTU
+    targetRevision: 0.48.0                   # wersja chartu (przykład)
+    helm:
+      parameters: []                         # ewentualne --set
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
