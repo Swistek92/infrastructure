@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-operator
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/strimzi/strimzi-kafka-operator.git
+    targetRevision: 0.41.0
+    path: install/cluster-operator
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kafka
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
