@@ -87,23 +87,9 @@ products:
       initialDelaySeconds: 15
       periodSeconds: 20
 
-# ===== Bitnami Kafka (Kafka 4.0, KRaft domyślnie) =====
-
+# ===== Kafka z obrazu apache/kafka będzie wdrożona osobnym manifestem =====
 kafka:
-  enabled: true
-  image:
-    repository: apache/kafka
-    tag: latest
-    pullPolicy: IfNotPresent
-  containerPorts:
-    - name: kafka
-      containerPort: 9092
-  env:
-    KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-    KAFKA_CFG_NODE_ID: "1"
-    KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
-    KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
-    KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://mywebapp-kafka:9092"
-    KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-    KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
-    KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+  enabled: false
+
+zookeeper:
+  enabled: false
