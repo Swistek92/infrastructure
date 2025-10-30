@@ -1,6 +1,7 @@
 global:
   imagePullSecrets:
     - name: dockerhub-cred
+
 apiGateway:
   replicas: 1
   containerPort: 3000
@@ -10,7 +11,7 @@ apiGateway:
     pullPolicy: Always
   env:
     NODE_ENV: "production"
-    KAFKA_BROKER: "mywebapp-kafka:9092"             # Bitnami Kafka (KRaft)
+    KAFKA_BROKER: "mywebapp-kafka:9092"
     PRODUCTS_GRPC_URL: "mywebapp-webapp-products:50051"
   service:
     type: ClusterIP
@@ -24,8 +25,8 @@ notification:
     tag: latest
     pullPolicy: IfNotPresent
   env:
-    KAFKA_BROKER: "mywebapp-kafka:9092"
     NODE_ENV: "production"
+    KAFKA_BROKER: "mywebapp-kafka:9092"
   service:
     type: ClusterIP
     port: 3000
@@ -38,8 +39,8 @@ order:
     tag: latest
     pullPolicy: IfNotPresent
   env:
-    KAFKA_BROKER: "mywebapp-kafka:9092"
     NODE_ENV: "production"
+    KAFKA_BROKER: "mywebapp-kafka:9092"
   service:
     type: ClusterIP
     port: 3000
@@ -56,8 +57,8 @@ payment:
     tag: latest
     pullPolicy: IfNotPresent
   env:
-    KAFKA_BROKER: "mywebapp-kafka:9092"
     NODE_ENV: "production"
+    KAFKA_BROKER: "mywebapp-kafka:9092"
   service:
     type: ClusterIP
     port: 3000
@@ -92,23 +93,33 @@ kafka:
   image:
     registry: docker.io
     repository: bitnami/kafka
-    tag: latest         # sprawdzony, dostępny tag
+    tag: 3.6.1-debian-11-r44     # poprawny, istniejący tag
+    pullSecrets:
+      - dockerhub-cred           # ważne: podaj secret również tu!
   kraft:
     enabled: true
   controller:
     replicaCount: 1
     resources:
-      requests: { cpu: 200m, memory: 512Mi }
-      limits:   { cpu: 500m, memory: 1Gi }
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
   broker:
     replicaCount: 1
     resources:
-      requests: { cpu: 200m, memory: 512Mi }
-      limits:   { cpu: 500m, memory: 1Gi }
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
   persistence:
-    enabled: false                    # lokalnie bez PVC (szybkie uruchomienie)
+    enabled: false
   service:
     type: ClusterIP
 
 zookeeper:
-  enabled: false                      # KRaft nie potrzebuje ZK
+  enabled: false
