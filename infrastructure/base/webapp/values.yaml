@@ -92,7 +92,7 @@ kafka:
   image:
     registry: docker.io
     repository: bitnami/kafka
-    tag: 3.6.1-debian-11-r44         # sprawdzony, dostępny tag
+    tag: latest         # sprawdzony, dostępny tag
   kraft:
     enabled: true
   controller:
