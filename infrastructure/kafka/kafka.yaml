@@ -1,3 +1,4 @@
+---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
@@ -6,7 +7,8 @@ metadata:
 spec:
   kafka:
     version: 3.7.0
-    replicas: 1
+    # WŁĄCZA KRaft (bez Zookeepera)
+    metadataMode: KRaft
     listeners:
       - name: plain
         port: 9092
@@ -18,21 +20,11 @@ spec:
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
-    storage:
-      type: ephemeral
-  zookeeper:
-    replicas: 1
-    storage:
-      type: ephemeral
   entityOperator:
     topicOperator: {}
     userOperator: {}
 
 ---
-# --------------------------------------------------------
-# Combined NodePool (controller + broker in one pod)
-# For small/dev environments
-# --------------------------------------------------------
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaNodePool
 metadata:
