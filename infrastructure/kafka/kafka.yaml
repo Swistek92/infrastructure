@@ -11,6 +11,7 @@ spec:
     version: 3.7.0
     metadataMode: KRaft
     config:
+      # Single-node dev: wszystkie RF = 1
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
       transaction.state.log.min.isr: 1
@@ -43,5 +44,14 @@ spec:
     volumes:
       - id: 0
         type: persistent-claim
-        size: 1Gi
-        class: standard
+        size: 5Gi
+        class: local-path   # <- podmień na swój StorageClass jeśli inny
+  template:
+    pod:
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          cpu: "1"
+          memory: "2Gi"
