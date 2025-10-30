@@ -3,10 +3,13 @@ kind: Kafka
 metadata:
   name: dev
   namespace: kafka
+  annotations:
+    strimzi.io/node-pools: "enabled"
+    strimzi.io/kraft: "enabled"
 spec:
   kafka:
-    version: 3.6.0
-    replicas: 1
+    version: 3.7.0
+    metadataMode: KRaft
     listeners:
       - name: plain
         port: 9092
@@ -18,21 +21,10 @@ spec:
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
-    storage:
-      type: ephemeral
-  zookeeper:
-    replicas: 1
-    storage:
-      type: ephemeral
   entityOperator:
     topicOperator: {}
     userOperator: {}
-
 ---
-# --------------------------------------------------------
-# Combined NodePool (controller + broker in one pod)
-# For small/dev environments
-# --------------------------------------------------------
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaNodePool
 metadata:
@@ -42,8 +34,6 @@ metadata:
     strimzi.io/cluster: dev
 spec:
   replicas: 1
-  roles:
-    - controller
-    - broker
+  roles: [controller, broker]
   storage:
     type: ephemeral
