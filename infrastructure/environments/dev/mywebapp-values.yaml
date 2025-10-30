@@ -1,0 +1,25 @@
+kafka:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/kafka
+    tag: 3.6.1-debian-11-r44       # <- istnieje
+  kraft:
+    enabled: true
+  controller:
+    replicaCount: 1
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits:   { cpu: 500m, memory: 1Gi }
+  broker:
+    replicaCount: 1
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits:   { cpu: 500m, memory: 1Gi }
+  persistence:
+    enabled: false
+  service:
+    type: ClusterIP
+
+zookeeper:
+  enabled: false   # KRaft nie potrzebuje ZK
